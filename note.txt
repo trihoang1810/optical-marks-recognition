@@ -1,0 +1,7 @@
+Những thứ cần xem ở đây: https://www.youtube.com/watch?v=0hT2cGSqPfk&ab_channel=Iknowpython
+
+Lưu ý:
+1. Kéo xuống dưới cùng nhấn start server trước khi chạy file python
+2. Sau khi mở được webcam thì vào địa chỉ server bằng máy tính (có hiển thị trên màn hình điện thoại)
+3. Vào rồi thì vào phần advanced settings chỉnh cái orientation là portrait (mặc định là landscape)
+4. ĐỪNG THOÁT WEBCAM (THOÁT WEBCAM = CANCEL SERVER), project trên máy tính cũng sẽ tắt theo vì ko kết nối được ip server
