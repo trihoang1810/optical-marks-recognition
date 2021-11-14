@@ -2,13 +2,20 @@ from time import sleep
 import cv2
 import numpy as np
 import utils
+from datetime import datetime
 
 
 ########################################################################
 webCamFeed = False
-pathImage = "8.jpg"
-threshold =170
+
+pathImage = "10.jpg"
+threshold =130
+
+# REMEMBER TO ROTATE THE CAMERA IN ADVANCED SETTINGS IN YOUR WEBCAM SERVER
 cap = cv2.VideoCapture(0)
+address = "http://192.168.1.4:8080/video"
+cap.open(address)
+
 cap.set(10,160)
 heightImg = 720
 widthImg  = 500
@@ -18,17 +25,14 @@ ans= [0,0,2,0,0,2,4,1,2,1,1,2,3,4,0]
 ########################################################################
 
 
-count=0
 
 while True:
     if webCamFeed:
         success, img = cap.read()
     else:
         img = cv2.imread(pathImage)
-    sleep(1.0)
+    # sleep(1.0)
     img = cv2.resize(img, (widthImg, heightImg)) # RESIZE IMAGE
-    imgFinal = img.copy()
-    imgBlank = np.zeros((heightImg,widthImg, 3), np.uint8) # CREATE A BLANK IMAGE FOR TESTING DEBUGGING IF REQUIRED
     imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # CONVERT IMAGE TO GRAY SCALE
     imgBlur = cv2.GaussianBlur(imgGray, (5, 5), 1) # ADD GAUSSIAN BLUR
     imgCanny = cv2.Canny(imgBlur,85,255) # APPLY CANNY 
@@ -49,7 +53,7 @@ while True:
             imgBlank = np.zeros((heightImg,widthImg, 3), np.uint8) # CREATE A BLANK IMAGE FOR TESTING DEBUGGING IF REQUIRED
             imgGray = cv2.cvtColor(imgWarped, cv2.COLOR_BGR2GRAY) # CONVERT IMAGE TO GRAY SCALE
             imgBlur = cv2.GaussianBlur(imgGray, (5, 5), 1) # ADD GAUSSIAN BLUR
-            imgCanny = cv2.Canny(imgBlur,85,255) # APPLY CANNY 
+            imgCanny = cv2.Canny(imgBlur,10,70) # APPLY CANNY 
             imgContours = imgWarped.copy() # COPY IMAGE FOR DISPLAY PURPOSES
             imgBigContour = imgWarped.copy() # COPY IMAGE FOR DISPLAY PURPOSES
             contours, hierarchy = cv2.findContours(imgCanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) # FIND ALL CONTOURS
@@ -71,7 +75,7 @@ while True:
             rectCon = utils.rectContour(contours) # FILTER FOR RECTANGLE CONTOURS
             biggestPoints= utils.getCornerPoints(rectCon[0]) # GET CORNER POINTS OF THE BIGGEST RECTANGLE
             gradePoints = utils.getCornerPoints(rectCon[1]) # GET CORNER POINTS OF THE SECOND BIGGEST RECTANGLE
-            print('biggestPoints',biggestPoints)
+            # print('biggestPoints',biggestPoints)
         
 
         if biggestPoints.size != 0 and gradePoints.size != 0:
@@ -132,7 +136,7 @@ while True:
                 else: # One choice
                     myIndexVal = np.where(arr == np.amax(arr))
                     myIndex.append(myIndexVal[0][0])
-            print(myIndex)
+            # print(myIndex)
             # COMPARE THE VALUES TO FIND THE CORRECT ANSWERS
             grading=[]
             for x in range(0,questions):
@@ -174,12 +178,13 @@ while True:
     stackedImage = utils.stackImages(imageArray,0.5,lables)
     cv2.imshow("Result",stackedImage)
     # SAVE IMAGE WHEN 's' key is pressed
+    now = datetime.now()
+    dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
     if cv2.waitKey(1) & 0xFF == ord('s'):
-        cv2.imwrite("C:/Users/Tri Hoang/Desktop/XLA/model/Optical-Mark-Recognition-OPENCV/__pycache__/myImage"+str(count)+".jpg",imgFinal)
+        cv2.imwrite("C:/Users/Tri Hoang/Desktop/XLA/model/Optical-Mark-Recognition-OPENCV/__pycache__/myImage"+dt_string+".jpg",imgFinal)
         cv2.rectangle(stackedImage, ((int(stackedImage.shape[1] / 2) - 230), int(stackedImage.shape[0] / 2) + 50),
                       (1100, 350), (0, 255, 0), cv2.FILLED)
         cv2.putText(stackedImage, "Scan Saved", (int(stackedImage.shape[1] / 2) - 200, int(stackedImage.shape[0] / 2)),
                     cv2.FONT_HERSHEY_DUPLEX, 3, (0, 0, 255), 5, cv2.LINE_AA)
         cv2.imshow('Result', stackedImage)
         cv2.waitKey(300)
-        count += 1
